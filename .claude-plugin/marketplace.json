@@ -1,0 +1,18 @@
+{
+  "name": "gitflux",
+  "owner": {
+    "name": "faizan-builds12",
+    "url": "https://github.com/faizan-builds12"
+  },
+  "metadata": {
+    "description": "GitFlux: a live, plain-English map of what your AI coding agent does to git and GitHub."
+  },
+  "plugins": [
+    {
+      "name": "gitflux",
+      "source": "./plugin",
+      "description": "See what your coding agent does to git and GitHub, live: a branch map, plain-English activity, danger alerts, and a guard that pauses commands that would lose work.",
+      "category": "productivity"
+    }
+  ]
+}

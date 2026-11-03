@@ -1,0 +1,11 @@
+node_modules/
+dist/
+packages/cli/ui-dist/
+.demo/
+*.log
+video/out/
+
+# personal tool settings and early design work, kept locally
+.claude/
+prototype/
+DESIGN.md

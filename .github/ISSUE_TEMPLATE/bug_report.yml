@@ -1,0 +1,40 @@
+name: Bug report
+description: The map, an alert or the guard got something wrong
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please don't paste private code, tokens, or screenshots of a private repository.
+        Security problems: use the Security tab's **Report a vulnerability** instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: The git command or request you made, what GitFlux showed, and what you expected instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: how
+    attributes:
+      label: How do you use GitFlux?
+      options:
+        - By hand (npx, no agent)
+        - Claude Code plugin
+        - Codex plugin
+        - init-hooks without the plugin
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: Anything GitFlux or your agent printed, and the output of `git status` and `git log --oneline -5` if it's about the map.
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: GitFlux version, Node version (`node --version`), git version, and your OS
+      placeholder: GitFlux 0.2.0, Node 22, git 2.47, Windows 11

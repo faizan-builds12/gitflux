@@ -1,0 +1,42 @@
+{
+  "name": "gitflux",
+  "version": "0.2.0",
+  "private": true,
+  "description": "See what happens to your git and GitHub, live, in plain English, whether you type the commands or your AI agent does.",
+  "keywords": [
+    "git",
+    "github",
+    "visualization",
+    "vibe-coding",
+    "claude-code",
+    "codex",
+    "developer-tools"
+  ],
+  "homepage": "https://github.com/faizan-builds12/gitflux#readme",
+  "bugs": "https://github.com/faizan-builds12/gitflux/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faizan-builds12/gitflux.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "faizan-builds12",
+    "url": "https://github.com/faizan-builds12"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @gitflux/ui && npm run build -w @gitflux/cli && node scripts/build-plugin.mjs",
+    "dev:ui": "npm run dev -w @gitflux/ui",
+    "test": "npm test -w @gitflux/cli",
+    "demo": "node scripts/demo.mjs",
+    "build:plugin": "node scripts/build-plugin.mjs"
+  },
+  "bin": {
+    "gitflux": "plugin/bin/gitflux.mjs"
+  }
+}

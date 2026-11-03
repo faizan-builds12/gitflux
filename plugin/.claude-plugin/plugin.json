@@ -1,0 +1,19 @@
+{
+  "name": "gitflux",
+  "version": "0.2.0",
+  "description": "See what your coding agent does to git and GitHub, live. Opens a local page with a branch map, plain-English activity and danger alerts, and pauses git commands that would lose work.",
+  "author": {
+    "name": "faizan-builds12",
+    "url": "https://github.com/faizan-builds12"
+  },
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "github",
+    "visualization",
+    "vibe coding",
+    "safety"
+  ],
+  "homepage": "https://github.com/faizan-builds12/gitflux",
+  "repository": "https://github.com/faizan-builds12/gitflux"
+}

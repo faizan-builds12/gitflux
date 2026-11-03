@@ -1,0 +1,34 @@
+{
+  "name": "gitflux",
+  "version": "0.2.0",
+  "description": "See what your coding agent does to git and GitHub, live. Opens a local page with a branch map, plain-English activity and danger alerts, and stops git commands that would lose work until you say yes.",
+  "author": {
+    "name": "faizan-builds12",
+    "url": "https://github.com/faizan-builds12"
+  },
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "github",
+    "visualization",
+    "vibe coding",
+    "safety"
+  ],
+  "hooks": "./hooks/codex-hooks.json",
+  "requires_local_executor": true,
+  "interface": {
+    "displayName": "GitFlux",
+    "shortDescription": "See what your agent does to git",
+    "longDescription": "GitFlux starts with each Codex session and opens a live map of your project's git history: what's saved on your laptop, what's on GitHub, every change in plain English, and alerts for the moments that lose work. Before Codex runs a git command that would erase work, GitFlux stops it and Codex asks you first.",
+    "developerName": "faizan-builds12",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read"
+    ],
+    "brandColor": "#11141C",
+    "screenshots": [],
+    "websiteURL": "https://github.com/faizan-builds12/gitflux"
+  },
+  "homepage": "https://github.com/faizan-builds12/gitflux",
+  "repository": "https://github.com/faizan-builds12/gitflux"
+}

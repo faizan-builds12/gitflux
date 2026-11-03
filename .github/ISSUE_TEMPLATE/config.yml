@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Troubleshooting guide
+    url: https://github.com/faizan-builds12/gitflux/blob/main/docs/troubleshooting.md
+    about: Fixes for the most common setup problems

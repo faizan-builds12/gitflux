@@ -1,0 +1,414 @@
+<title>GitFlux Visual Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a sticky step index on the left, one long column of steps; each step = real screenshot + what changed, in GitFlux's own Soft language */
+:root {
+  --bg: #ECEEF1; --panel: #FFFFFF; --raised: #F3F4F6; --line: rgba(17,20,28,.09); --line-2: rgba(17,20,28,.16);
+  --text: #11141C; --muted: #5B6270; --faint: #8C929D;
+  --ok: #138A44; --ok-soft: rgba(19,138,68,.11); --warn: #A85A00; --warn-soft: rgba(234,138,0,.14);
+  --danger: #C81E1E; --danger-soft: rgba(220,38,38,.10); --pr: #6D28D9; --pr-soft: rgba(109,40,217,.10);
+  --info: #2459E0; --info-soft: rgba(36,89,224,.10); --brand: #2EA043; --agent: #C8643F;
+  --sans: 'Urbanist', ui-sans-serif, system-ui, sans-serif; --mono: 'Geist Mono', ui-monospace, Consolas, monospace;
+  --shadow: 0 1px 2px rgba(17,20,28,.05), 0 10px 28px -14px rgba(17,20,28,.22);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0A0B0D; --panel: #16171B; --raised: #1E2025; --line: rgba(255,255,255,.08); --line-2: rgba(255,255,255,.15);
+  --text: #ECEEF2; --muted: #9AA0AC; --faint: #6B717C; --ok: #4ADE80; --ok-soft: rgba(74,222,128,.12); --warn: #FBBF24; --warn-soft: rgba(251,191,36,.12);
+  --danger: #F87171; --danger-soft: rgba(248,113,113,.13); --pr: #B49CFB; --pr-soft: rgba(167,139,250,.14); --info: #7AA2FF; --info-soft: rgba(91,140,255,.14); --agent: #E58D6B;
+  --shadow: 0 0 0 1px rgba(255,255,255,.03), 0 16px 36px -16px rgba(0,0,0,.8); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0A0B0D; --panel: #16171B; --raised: #1E2025; --line: rgba(255,255,255,.08); --line-2: rgba(255,255,255,.15);
+  --text: #ECEEF2; --muted: #9AA0AC; --faint: #6B717C; --ok: #4ADE80; --ok-soft: rgba(74,222,128,.12); --warn: #FBBF24; --warn-soft: rgba(251,191,36,.12);
+  --danger: #F87171; --danger-soft: rgba(248,113,113,.13); --pr: #B49CFB; --pr-soft: rgba(167,139,250,.14); --info: #7AA2FF; --info-soft: rgba(91,140,255,.14); --agent: #E58D6B;
+  --shadow: 0 0 0 1px rgba(255,255,255,.03), 0 16px 36px -16px rgba(0,0,0,.8); color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+code, .mono { font-family: var(--mono); font-size: .86em; }
+a { color: inherit; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 32px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 32px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); } nav.index { display: none; } }
+
+/* header */
+header.top { grid-column: 1 / -1; display: grid; gap: 14px; padding-bottom: 8px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { flex: none; }
+.brand b { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.brand span { color: var(--faint); font: 500 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+h1 { margin: 0; font-size: clamp(30px, 4vw, 46px); line-height: 1.08; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; max-width: 22ch; }
+.lede { margin: 0; max-width: 64ch; color: var(--muted); font-size: 17px; }
+
+/* index */
+nav.index { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); align-self: start; max-height: calc(100vh - 40px); overflow: auto; font-size: 14px; scrollbar-width: thin; }
+nav.index p { margin: 0 0 8px; font: 500 11.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+nav.index ol { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 1px; }
+nav.index a { display: flex; gap: 10px; align-items: baseline; padding: 5px 10px; border-radius: 9px; text-decoration: none; color: var(--muted); }
+nav.index a:hover, nav.index a:focus-visible { background: var(--panel); color: var(--text); outline: none; }
+nav.index a i { font: 500 11px var(--mono); font-style: normal; color: var(--faint); min-width: 18px; }
+
+main { display: grid; gap: 56px; min-width: 0; }
+section > h2 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.02em; font-weight: 700; text-wrap: balance; }
+section > .sub { margin: 0 0 22px; color: var(--muted); max-width: 66ch; }
+
+/* legend cards */
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.lcard { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+.lcard h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.lcard p { margin: 0; font-size: 14px; color: var(--muted); }
+.demo { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 10px 4px; flex-wrap: wrap; }
+.tile { position: relative; width: 56px; height: 56px; border-radius: 17px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); display: grid; place-items: center; color: var(--c, var(--text)); flex: none; }
+.tile.ghost { background: transparent; border: 1.5px dashed var(--line-2); box-shadow: none; color: var(--faint); }
+.tile .st { position: absolute; top: -7px; right: -7px; width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--bg); color: var(--panel); }
+.tile .st svg { width: 12px; height: 12px; }
+.st.ok { background: var(--ok); } .st.pending { background: var(--warn); } .st.gh { background: var(--pr); }
+.ring { position: relative; padding: 9px; border-radius: 23px; border: 1.5px solid var(--text); }
+.ring::before { content: 'You are here'; position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; padding: 2px 9px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 11px; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); color: var(--c); font: 500 12.5px var(--mono); }
+.pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge svg { width: 14px; height: 14px; }
+.badge.pending { background: var(--warn-soft); color: var(--warn); } .badge.gh { background: var(--pr-soft); color: var(--pr); }
+.traveler { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--ok); color: var(--panel); font: 500 11.5px var(--mono); box-shadow: 0 0 0 4px var(--ok-soft); }
+.traveler.up { background: var(--info); box-shadow: 0 0 0 4px var(--info-soft); }
+@media (prefers-reduced-motion: no-preference) {
+  .traveler.anim { animation: travel 2.2s cubic-bezier(.65,0,.35,1) infinite; }
+  .traveler.up.anim { animation-name: travelup; }
+  @keyframes travel { 0%,10% { transform: translateY(-14px); opacity: 0 } 25% { opacity: 1 } 75% { transform: translateY(14px); opacity: 1 } 90%,100% { transform: translateY(18px); opacity: 0 } }
+  @keyframes travelup { 0%,10% { transform: translateY(14px); opacity: 0 } 25% { opacity: 1 } 75% { transform: translateY(-14px); opacity: 1 } 90%,100% { transform: translateY(-18px); opacity: 0 } }
+  .land { animation: land 2.4s cubic-bezier(.22,1,.36,1) infinite; }
+  @keyframes land { 0% { opacity: 0; transform: translateY(-14px) scale(.9) } 25%,100% { opacity: 1; transform: none } }
+}
+
+/* steps */
+.step { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; align-items: start; scroll-margin-top: 20px; }
+@media (max-width: 1100px) { .step { grid-template-columns: minmax(0, 1fr); } }
+.shot { margin: 0; display: grid; gap: 8px; }
+.shot button { padding: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); cursor: zoom-in; box-shadow: var(--shadow); display: block; width: 100%; }
+.shot button:focus-visible { outline: 2px solid var(--info); outline-offset: 3px; }
+.shot img { display: block; width: 100%; height: auto; aspect-ratio: 1440 / 900; }
+.shot figcaption { font-size: 12.5px; color: var(--faint); }
+.info { display: grid; gap: 14px; min-width: 0; }
+.shead { display: flex; align-items: center; gap: 12px; }
+.shead .n { font: 500 12px var(--mono); color: var(--faint); }
+.shead h3 { margin: 0; font-size: 21px; letter-spacing: -.015em; font-weight: 700; line-height: 1.2; text-wrap: balance; }
+.cmd { display: block; padding: 10px 12px; border-radius: 12px; background: #111318; color: #E6E8EC; font: 12.5px/1.5 var(--mono); overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+.cmd::before { content: '$ '; color: #7EE2A8; }
+.cmd.none::before { content: ''; }
+.facts { display: grid; gap: 10px; margin: 0; }
+.facts div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; font-size: 14.5px; }
+.facts dt { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--faint); padding-top: 3px; }
+.facts dd { margin: 0; color: var(--muted); }
+.facts dd b { color: var(--text); font-weight: 600; }
+.icons { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 6px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); font-size: 13px; font-weight: 600; }
+.chip .ic { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: var(--raised); color: var(--text); }
+.chip .ic svg { width: 17px; height: 17px; }
+.chip.ok .ic { background: var(--ok-soft); color: var(--ok); } .chip.warn .ic { background: var(--warn-soft); color: var(--warn); }
+.chip.danger .ic { background: var(--danger-soft); color: var(--danger); } .chip.info .ic { background: var(--info-soft); color: var(--info); }
+.chip.pr .ic { background: var(--pr-soft); color: var(--pr); } .chip.agent .ic { background: color-mix(in srgb, var(--agent) 14%, transparent); color: var(--agent); }
+
+/* reference tables */
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--faint); background: var(--raised); }
+tr:last-child td { border-bottom: 0; }
+td .ic { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--raised); }
+td .ic svg { width: 21px; height: 21px; }
+td code { color: var(--muted); }
+td.tone-ok .ic { background: var(--ok-soft); color: var(--ok); } td.tone-warn .ic { background: var(--warn-soft); color: var(--warn); }
+td.tone-danger .ic { background: var(--danger-soft); color: var(--danger); } td.tone-info .ic { background: var(--info-soft); color: var(--info); }
+td.tone-pr .ic { background: var(--pr-soft); color: var(--pr); }
+.tables { display: grid; gap: 18px; }
+.tables h3 { margin: 6px 0 8px; font-size: 16px; }
+.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+
+.notes { display: grid; gap: 10px; }
+.note { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); }
+.note .ic { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--warn-soft); color: var(--warn); }
+.note .ic svg { width: 20px; height: 20px; }
+.note p { margin: 0; font-size: 14.5px; color: var(--muted); }
+.note b { color: var(--text); }
+
+/* lightbox */
+dialog { border: 0; padding: 0; background: transparent; max-width: min(96vw, 1440px); width: 100%; }
+dialog::backdrop { background: rgba(8, 10, 14, .78); }
+dialog img { width: 100%; height: auto; border-radius: 12px; display: block; }
+dialog form { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; color: #E6E8EC; font-size: 14px; }
+dialog button { font: 600 14px var(--sans); padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; cursor: pointer; }
+footer { grid-column: 1 / -1; color: var(--faint); font-size: 13px; border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0B0D10"/><defs><linearGradient id="gfa" gradientUnits="userSpaceOnUse" x1="14.11" y1="10.83" x2="10.04" y2="16.68"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.5" stop-color="#8EF0AE" stop-opacity="1"/><stop offset="1" stop-color="#3DDC6B" stop-opacity="1"/></linearGradient><linearGradient id="gfb" gradientUnits="userSpaceOnUse" x1="16.93" y1="10.93" x2="21.71" y2="18.94"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.5" stop-color="#8EF0AE" stop-opacity="1"/><stop offset="1" stop-color="#2BC46F" stop-opacity="1"/></linearGradient><linearGradient id="gfc" gradientUnits="userSpaceOnUse" x1="11.16" y1="19.38" x2="20.25" y2="21.04"><stop offset="0" stop-color="#3DDC6B" stop-opacity="1"/><stop offset="0.5" stop-color="#34D26D" stop-opacity="1"/><stop offset="1" stop-color="#2BC46F" stop-opacity="1"/></linearGradient></defs><line x1="14.11" y1="10.83" x2="10.04" y2="16.68" stroke="url(#gfa)" stroke-width="2.1" stroke-linecap="round"/><line x1="16.93" y1="10.93" x2="21.71" y2="18.94" stroke="url(#gfb)" stroke-width="2.1" stroke-linecap="round"/><line x1="11.16" y1="19.38" x2="20.25" y2="21.04" stroke="url(#gfc)" stroke-width="2.1" stroke-linecap="round"/><circle cx="15.6" cy="8.7" r="2.6" fill="none" stroke="#FFFFFF" stroke-width="1.9"/><circle cx="8.5" cy="18.9" r="2.7" fill="none" stroke="#3DDC6B" stroke-width="2.2"/><circle cx="23.3" cy="21.6" r="3.1" fill="none" stroke="#2BC46F" stroke-width="2.4"/></svg>
+      <b>GitFlux</b><span>Visual guide</span>
+    </div>
+    <h1>Every git step, and exactly what GitFlux shows for it</h1>
+    <p class="lede">One project, a recipe app, taken from an empty folder through 23 git moments: saving, uploading, branching, merging on GitHub, mistakes and recoveries. Each screenshot is the real GitFlux captured right after that step. Click any screenshot to see it full size.</p>
+  </header>
+
+  <nav class="index" aria-label="Contents">
+    <p>Start</p>
+    <ol><li><a href="#language"><i>A</i>How to read the screen</a></li></ol>
+    <p>Steps</p>
+    <ol id="toc"></ol>
+    <p>Reference</p>
+    <ol>
+      <li><a href="#icons"><i>B</i>Every icon</a></li>
+      <li><a href="#motion"><i>C</i>Every animation</a></li>
+      <li><a href="#noticed"><i>D</i>What was fixed</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="language">
+      <h2>How to read the screen</h2>
+      <p class="sub">GitFlux has three columns: your agent on the left, the map in the middle, and "is my work safe?" on the right. These are the pieces the map is built from.</p>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section id="steps" aria-label="Steps">
+      <div id="steplist" style="display:grid;gap:56px"></div>
+    </section>
+
+    <section id="icons">
+      <h2>Every icon</h2>
+      <p class="sub">GitFlux uses Phosphor icons in their two-tone (duotone) style. The background colour of an icon tells you how serious it is: green safe, blue information, amber needs a look, red could lose work, purple GitHub.</p>
+      <div class="tables" id="tables"></div>
+    </section>
+
+    <section id="motion">
+      <h2>Every animation</h2>
+      <p class="sub">Motion only ever means something happened. If your computer is set to reduce motion, all of it switches off and the screen just updates.</p>
+      <div class="tablewrap"><table id="motiontable"><thead><tr><th>What moves</th><th>When</th><th>How</th><th>Duration</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section id="noticed">
+      <h2>Fixed since the first version of this guide</h2>
+      <p class="sub">The first capture turned up four problems. Each was reproduced on purpose before it was fixed, then checked again in this capture.</p>
+      <div class="notes" id="notes"></div>
+    </section>
+  </main>
+
+  <footer>Captured from GitFlux 0.2.0 after the redesign, on a scripted project. Light mode unless marked; the last step shows dark mode.</footer>
+</div>
+
+<dialog id="lb" aria-label="Screenshot, full size">
+  <img id="lbimg" alt="">
+  <form method="dialog"><span id="lbcap"></span><button value="close">Close</button></form>
+</dialog>
+
+<script>
+const I = {"GitMerge":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M104,56A24,24,0,1,1,80,32,24,24,0,0,1,104,56Z\" opacity=\"0.2\"></path><path d=\"M208,112a32.05,32.05,0,0,0-30.69,23l-42.21-6a8,8,0,0,1-4.95-2.71L94.43,84.55A32,32,0,1,0,72,87v82a32,32,0,1,0,16,0V101.63l30,35a24,24,0,0,0,14.83,8.14l44,6.28A32,32,0,1,0,208,112ZM64,56A16,16,0,1,1,80,72,16,16,0,0,1,64,56ZM96,200a16,16,0,1,1-16-16A16,16,0,0,1,96,200Zm112-40a16,16,0,1,1,16-16A16,16,0,0,1,208,160Z\"></path></svg>","GitPullRequest":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M96,64A24,24,0,1,1,72,40,24,24,0,0,1,96,64ZM200,168a24,24,0,1,0,24,24A24,24,0,0,0,200,168Z\" opacity=\"0.2\"></path><path d=\"M104,64A32,32,0,1,0,64,95v66a32,32,0,1,0,16,0V95A32.06,32.06,0,0,0,104,64ZM56,64A16,16,0,1,1,72,80,16,16,0,0,1,56,64ZM88,192a16,16,0,1,1-16-16A16,16,0,0,1,88,192Zm120-31V110.63a23.85,23.85,0,0,0-7-17L163.31,56H192a8,8,0,0,0,0-16H144a8,8,0,0,0-8,8V96a8,8,0,0,0,16,0V67.31L189.66,105a8,8,0,0,1,2.34,5.66V161a32,32,0,1,0,16,0Zm-8,47a16,16,0,1,1,16-16A16,16,0,0,1,200,208Z\"></path></svg>","ArrowUUpLeft":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M80,40v96L32,88Z\" opacity=\"0.2\"></path><path d=\"M168,80H88V40a8,8,0,0,0-13.66-5.66l-48,48a8,8,0,0,0,0,11.32l48,48A8,8,0,0,0,88,136V96h80a48,48,0,0,1,0,96H80a8,8,0,0,0,0,16h88a64,64,0,0,0,0-128ZM72,116.69,43.31,88,72,59.31Z\"></path></svg>","Plant":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M138.54,149.46C106.62,96.25,149.18,43.05,239.63,48.37,245,138.82,191.75,181.39,138.54,149.46ZM16.26,88.26c-3.8,64.61,34.21,95,72.21,72.21C111.27,122.47,80.87,84.46,16.26,88.26Z\" opacity=\"0.2\"></path><path d=\"M247.63,47.89a8,8,0,0,0-7.52-7.52c-51.76-3-93.32,12.74-111.18,42.22-11.8,19.48-11.78,43.16-.16,65.74a71.37,71.37,0,0,0-14.17,26.95L98.33,159c7.82-16.33,7.52-33.36-1-47.49C84.09,89.73,53.62,78,15.79,80.27a8,8,0,0,0-7.52,7.52c-2.23,37.83,9.46,68.3,31.25,81.5A45.82,45.82,0,0,0,63.44,176,54.58,54.58,0,0,0,87,170.33l25,25V224a8,8,0,0,0,16,0V194.51a55.61,55.61,0,0,1,12.27-35,73.91,73.91,0,0,0,33.31,8.4,60.9,60.9,0,0,0,31.83-8.86C234.89,141.21,250.67,99.65,247.63,47.89ZM86.06,146.74l-24.41-24.4a8,8,0,0,0-11.31,11.31l24.41,24.41c-9.61,3.18-18.93,2.39-26.94-2.46C32.47,146.31,23.79,124.32,24,96c28.31-.25,50.31,8.47,59.6,23.81C88.45,127.82,89.24,137.14,86.06,146.74Zm111.06-1.36c-13.4,8.11-29.15,8.73-45.15,2l53.69-53.7a8,8,0,0,0-11.31-11.32L140.65,136c-6.76-16-6.15-31.76,2-45.15,13.94-23,47-35.8,89.33-34.83C232.94,98.34,220.14,131.44,197.12,145.38Z\"></path></svg>","Wrench":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,96a64,64,0,0,1-94.94,56L73,217A24,24,0,0,1,39,183L104,126.94a64,64,0,0,1,80-90.29L144,80l5.66,26.34L176,112l43.35-40A63.8,63.8,0,0,1,224,96Z\" opacity=\"0.2\"></path><path d=\"M226.76,69a8,8,0,0,0-12.84-2.88l-40.3,37.19-17.23-3.7-3.7-17.23,37.19-40.3A8,8,0,0,0,187,29.24,72,72,0,0,0,88,96,72.34,72.34,0,0,0,94,124.94L33.79,177c-.15.12-.29.26-.43.39a32,32,0,0,0,45.26,45.26c.13-.13.27-.28.39-.42L131.06,162A72,72,0,0,0,232,96,71.56,71.56,0,0,0,226.76,69ZM160,152a56.14,56.14,0,0,1-27.07-7,8,8,0,0,0-9.92,1.77L67.11,211.51a16,16,0,0,1-22.62-22.62L109.18,133a8,8,0,0,0,1.77-9.93,56,56,0,0,1,58.36-82.31l-31.2,33.81a8,8,0,0,0-1.94,7.1L141.83,108a8,8,0,0,0,6.14,6.14l26.35,5.66a8,8,0,0,0,7.1-1.94l33.81-31.2A56.06,56.06,0,0,1,160,152Z\"></path></svg>","BookOpen":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M232,56V200H160a32,32,0,0,0-32,32,32,32,0,0,0-32-32H24V56H96a32,32,0,0,1,32,32,32,32,0,0,1,32-32Z\" opacity=\"0.2\"></path><path d=\"M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64Z\"></path></svg>","Flask":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M208,216H48a8,8,0,0,1-6.86-12.12l30.48-50.8h0c13.23-2.48,32-1.41,56.37,10.92,32.25,16.33,54.75,12.91,67.5,7.65h0l19.34,32.23A8,8,0,0,1,208,216Z\" opacity=\"0.2\"></path><path d=\"M221.69,199.77,160,96.92V40h8a8,8,0,0,0,0-16H88a8,8,0,0,0,0,16h8V96.92L34.31,199.77A16,16,0,0,0,48,224H208a16,16,0,0,0,13.72-24.23ZM110.86,103.25A7.93,7.93,0,0,0,112,99.14V40h32V99.14a7.93,7.93,0,0,0,1.14,4.11L183.36,167c-12,2.37-29.07,1.37-51.75-10.11-15.91-8.05-31.05-12.32-45.22-12.81ZM48,208l28.54-47.58c14.25-1.73,30.31,1.85,47.82,10.72,19,9.61,35,12.88,48,12.88a69.89,69.89,0,0,0,19.55-2.7L208,208Z\"></path></svg>","Palette":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,127.17a96.48,96.48,0,0,1-2.39,22.18A24,24,0,0,1,198.21,168H152a24,24,0,0,0-24,24,24,24,0,0,1-32,22.61C58.73,201.44,32,169.81,32,128a96,96,0,0,1,95-96C179.84,31.47,223.55,74.35,224,127.17Z\" opacity=\"0.2\"></path><path d=\"M200.77,53.89A103.27,103.27,0,0,0,128,24h-1.07A104,104,0,0,0,24,128c0,43,26.58,79.06,69.36,94.17A32,32,0,0,0,136,192a16,16,0,0,1,16-16h46.21a31.81,31.81,0,0,0,31.2-24.88,104.43,104.43,0,0,0,2.59-24A103.28,103.28,0,0,0,200.77,53.89Zm13,93.71A15.89,15.89,0,0,1,198.21,160H152a32,32,0,0,0-32,32,16,16,0,0,1-21.31,15.07C62.49,194.3,40,164,40,128a88,88,0,0,1,87.09-88h.9a88.35,88.35,0,0,1,88,87.25A88.86,88.86,0,0,1,213.81,147.6ZM140,76a12,12,0,1,1-12-12A12,12,0,0,1,140,76ZM96,100A12,12,0,1,1,84,88,12,12,0,0,1,96,100Zm0,56a12,12,0,1,1-12-12A12,12,0,0,1,96,156Zm88-56a12,12,0,1,1-12-12A12,12,0,0,1,184,100Z\"></path></svg>","Shuffle":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M107.14,98.8,128,128l-20.86,29.2A64,64,0,0,1,55.06,184H32V72H55.06A64,64,0,0,1,107.14,98.8ZM200.94,72a64,64,0,0,0-52.08,26.8L128,128l20.86,29.2A64,64,0,0,0,200.94,184H232V72Z\" opacity=\"0.2\"></path><path d=\"M237.66,178.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L212.69,192H200.94a72.12,72.12,0,0,1-58.59-30.15l-41.72-58.4A56.1,56.1,0,0,0,55.06,80H32a8,8,0,0,1,0-16H55.06a72.12,72.12,0,0,1,58.59,30.15l41.72,58.4A56.1,56.1,0,0,0,200.94,176h11.75l-10.35-10.34a8,8,0,0,1,11.32-11.32ZM143,107a8,8,0,0,0,11.16-1.86l1.2-1.67A56.1,56.1,0,0,1,200.94,80h11.75L202.34,90.34a8,8,0,0,0,11.32,11.32l24-24a8,8,0,0,0,0-11.32l-24-24a8,8,0,0,0-11.32,11.32L212.69,64H200.94a72.12,72.12,0,0,0-58.59,30.15l-1.2,1.67A8,8,0,0,0,143,107Zm-30,42a8,8,0,0,0-11.16,1.86l-1.2,1.67A56.1,56.1,0,0,1,55.06,176H32a8,8,0,0,0,0,16H55.06a72.12,72.12,0,0,0,58.59-30.15l1.2-1.67A8,8,0,0,0,113,149Z\"></path></svg>","Package":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M128,129.09V232a8,8,0,0,1-3.84-1l-88-48.18a8,8,0,0,1-4.16-7V80.18a8,8,0,0,1,.7-3.25Z\" opacity=\"0.2\"></path><path d=\"M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.34,44-29.77,16.3-80.35-44ZM128,120,47.66,76l33.9-18.56,80.34,44ZM40,90l80,43.78v85.79L40,175.82Zm176,85.78h0l-80,43.79V133.82l32-17.51V152a8,8,0,0,0,16,0V107.55L216,90v85.77Z\"></path></svg>","PencilSimpleLine":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M221.66,90.34,192,120,136,64l29.66-29.66a8,8,0,0,1,11.31,0L221.66,79A8,8,0,0,1,221.66,90.34Z\" opacity=\"0.2\"></path><path d=\"M227.32,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H216a8,8,0,0,0,0-16H115.32l112-112A16,16,0,0,0,227.32,73.37ZM48,163.31l88-88L180.69,120l-88,88H48Zm144-54.62L147.32,64l24-24L216,84.69Z\"></path></svg>","Key":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M232,98.36C230.73,136.92,198.67,168,160.09,168a71.68,71.68,0,0,1-26.92-5.17h0L120,176H96v24H72v24H40a8,8,0,0,1-8-8V187.31a8,8,0,0,1,2.34-5.65l58.83-58.83h0A71.68,71.68,0,0,1,88,95.91c0-38.58,31.08-70.64,69.64-71.87A72,72,0,0,1,232,98.36Z\" opacity=\"0.2\"></path><path d=\"M216.57,39.43A80,80,0,0,0,83.91,120.78L28.69,176A15.86,15.86,0,0,0,24,187.31V216a16,16,0,0,0,16,16H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A79.73,79.73,0,0,0,160,176h.1A80,80,0,0,0,216.57,39.43ZM224,98.1c-1.09,34.09-29.75,61.86-63.89,61.9H160a63.7,63.7,0,0,1-23.65-4.51,8,8,0,0,0-8.84,1.68L116.69,168H96a8,8,0,0,0-8,8v16H72a8,8,0,0,0-8,8v16H40V187.31l58.83-58.82a8,8,0,0,0,1.68-8.84A63.72,63.72,0,0,1,96,95.92c0-34.14,27.81-62.8,61.9-63.89A64,64,0,0,1,224,98.1ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z\"></path></svg>","Sparkle":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M194.82,151.43l-55.09,20.3-20.3,55.09a7.92,7.92,0,0,1-14.86,0l-20.3-55.09-55.09-20.3a7.92,7.92,0,0,1,0-14.86l55.09-20.3,20.3-55.09a7.92,7.92,0,0,1,14.86,0l20.3,55.09,55.09,20.3A7.92,7.92,0,0,1,194.82,151.43Z\" opacity=\"0.2\"></path><path d=\"M197.58,129.06,146,110l-19-51.62a15.92,15.92,0,0,0-29.88,0L78,110l-51.62,19a15.92,15.92,0,0,0,0,29.88L78,178l19,51.62a15.92,15.92,0,0,0,29.88,0L146,178l51.62-19a15.92,15.92,0,0,0,0-29.88ZM137,164.22a8,8,0,0,0-4.74,4.74L112,223.85,91.78,169A8,8,0,0,0,87,164.22L32.15,144,87,123.78A8,8,0,0,0,91.78,119L112,64.15,132.22,119a8,8,0,0,0,4.74,4.74L191.85,144ZM144,40a8,8,0,0,1,8-8h16V16a8,8,0,0,1,16,0V32h16a8,8,0,0,1,0,16H184V64a8,8,0,0,1-16,0V48H152A8,8,0,0,1,144,40ZM248,88a8,8,0,0,1-8,8h-8v8a8,8,0,0,1-16,0V96h-8a8,8,0,0,1,0-16h8V72a8,8,0,0,1,16,0v8h8A8,8,0,0,1,248,88Z\"></path></svg>","GitCommit":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M176,128a48,48,0,1,1-48-48A48,48,0,0,1,176,128Z\" opacity=\"0.2\"></path><path d=\"M248,120H183.42a56,56,0,0,0-110.84,0H8a8,8,0,0,0,0,16H72.58a56,56,0,0,0,110.84,0H248a8,8,0,0,0,0-16ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z\"></path></svg>","Eye":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M128,56C48,56,16,128,16,128s32,72,112,72,112-72,112-72S208,56,128,56Zm0,112a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z\" opacity=\"0.2\"></path><path d=\"M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z\"></path></svg>","FolderSimplePlus":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,88V200.89a7.11,7.11,0,0,1-7.11,7.11H40a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h88A8,8,0,0,1,224,88Z\" opacity=\"0.2\"></path><path d=\"M216,72H130.67L102.93,51.2a16.12,16.12,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V200a16,16,0,0,0,16,16H216.89A15.13,15.13,0,0,0,232,200.89V88A16,16,0,0,0,216,72Zm0,128H40V64H93.33L123.2,86.4A8,8,0,0,0,128,88h88Zm-56-56a8,8,0,0,1-8,8H136v16a8,8,0,0,1-16,0V152H104a8,8,0,0,1,0-16h16V120a8,8,0,0,1,16,0v16h16A8,8,0,0,1,160,144Z\"></path></svg>","ArrowsLeftRight":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M208,80v96H48V80Z\" opacity=\"0.2\"></path><path d=\"M213.66,181.66l-32,32a8,8,0,0,1-11.32-11.32L188.69,184H48a8,8,0,0,1,0-16H188.69l-18.35-18.34a8,8,0,0,1,11.32-11.32l32,32A8,8,0,0,1,213.66,181.66Zm-139.32-64a8,8,0,0,0,11.32-11.32L67.31,88H208a8,8,0,0,0,0-16H67.31L85.66,53.66A8,8,0,0,0,74.34,42.34l-32,32a8,8,0,0,0,0,11.32Z\"></path></svg>","GitBranch":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,64a24,24,0,1,1-24-24A24,24,0,0,1,224,64Z\" opacity=\"0.2\"></path><path d=\"M232,64a32,32,0,1,0-40,31v17a8,8,0,0,1-8,8H96a23.84,23.84,0,0,0-8,1.38V95a32,32,0,1,0-16,0v66a32,32,0,1,0,16,0V144a8,8,0,0,1,8-8h88a24,24,0,0,0,24-24V95A32.06,32.06,0,0,0,232,64ZM64,64A16,16,0,1,1,80,80,16,16,0,0,1,64,64ZM96,192a16,16,0,1,1-16-16A16,16,0,0,1,96,192ZM200,80a16,16,0,1,1,16-16A16,16,0,0,1,200,80Z\"></path></svg>","Trash":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M200,56V208a8,8,0,0,1-8,8H64a8,8,0,0,1-8-8V56Z\" opacity=\"0.2\"></path><path d=\"M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z\"></path></svg>","ArrowCounterClockwise":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,128a88,88,0,1,1-88-88A88,88,0,0,1,216,128Z\" opacity=\"0.2\"></path><path d=\"M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z\"></path></svg>","Stack":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,80l-96,56L32,80l96-56Z\" opacity=\"0.2\"></path><path d=\"M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z\"></path></svg>","CloudArrowDown":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z\" opacity=\"0.2\"></path><path d=\"M248,128a87.34,87.34,0,0,1-17.6,52.81,8,8,0,1,1-12.8-9.62A71.34,71.34,0,0,0,232,128a72,72,0,0,0-144,0,8,8,0,0,1-16,0,88,88,0,0,1,3.29-23.88C74.2,104,73.1,104,72,104a48,48,0,0,0,0,96H96a8,8,0,0,1,0,16H72A64,64,0,1,1,81.29,88.68,88,88,0,0,1,248,128Zm-69.66,42.34L160,188.69V128a8,8,0,0,0-16,0v60.69l-18.34-18.35a8,8,0,0,0-11.32,11.32l32,32a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z\"></path></svg>","CloudArrowUp":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z\" opacity=\"0.2\"></path><path d=\"M178.34,165.66,160,147.31V208a8,8,0,0,1-16,0V147.31l-18.34,18.35a8,8,0,0,1-11.32-11.32l32-32a8,8,0,0,1,11.32,0l32,32a8,8,0,0,1-11.32,11.32ZM160,40A88.08,88.08,0,0,0,81.29,88.68,64,64,0,1,0,72,216h40a8,8,0,0,0,0-16H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.29.12A88,88,0,0,0,72,128a8,8,0,0,0,16,0,72,72,0,1,1,100.8,66,8,8,0,0,0,3.2,15.34,7.9,7.9,0,0,0,3.2-.68A88,88,0,0,0,160,40Z\"></path></svg>","ShieldWarning":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,56v56c0,96-88,120-88,120S40,208,40,112V56a8,8,0,0,1,8-8H208A8,8,0,0,1,216,56Z\" opacity=\"0.2\"></path><path d=\"M120,136V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,48a12,12,0,1,0-12-12A12,12,0,0,0,128,184ZM224,56v56c0,52.72-25.52,84.67-46.93,102.19-23.06,18.86-46,25.27-47,25.53a8,8,0,0,1-4.2,0c-1-.26-23.91-6.67-47-25.53C57.52,196.67,32,164.72,32,112V56A16,16,0,0,1,48,40H208A16,16,0,0,1,224,56Zm-16,0L48,56l0,56c0,37.3,13.82,67.51,41.07,89.81A128.25,128.25,0,0,0,128,223.62a129.3,129.3,0,0,0,39.41-22.2C194.34,179.16,208,149.07,208,112Z\"></path></svg>","Tag":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M237.66,153,153,237.66a8,8,0,0,1-11.31,0L42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32A8,8,0,0,1,237.66,153Z\" opacity=\"0.2\"></path><path d=\"M243.31,136,144,36.69A15.86,15.86,0,0,0,132.69,32H40a8,8,0,0,0-8,8v92.69A15.86,15.86,0,0,0,36.69,144L136,243.31a16,16,0,0,0,22.63,0l84.68-84.68a16,16,0,0,0,0-22.63Zm-96,96L48,132.69V48h84.69L232,147.31ZM96,84A12,12,0,1,1,84,72,12,12,0,0,1,96,84Z\"></path></svg>","GitFork":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M88,64A24,24,0,1,1,64,40,24,24,0,0,1,88,64ZM192,40a24,24,0,1,0,24,24A24,24,0,0,0,192,40Z\" opacity=\"0.2\"></path><path d=\"M224,64a32,32,0,1,0-40,31v17a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V95a32,32,0,1,0-16,0v17a24,24,0,0,0,24,24h40v25a32,32,0,1,0,16,0V136h40a24,24,0,0,0,24-24V95A32.06,32.06,0,0,0,224,64ZM48,64A16,16,0,1,1,64,80,16,16,0,0,1,48,64Zm96,128a16,16,0,1,1-16-16A16,16,0,0,1,144,192ZM192,80a16,16,0,1,1,16-16A16,16,0,0,1,192,80Z\"></path></svg>","MinusCircle":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"></path><path d=\"M176,128a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,128Zm56,0A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z\"></path></svg>","CheckCircle":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"></path><path d=\"M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z\"></path></svg>","XCircle":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"></path><path d=\"M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z\"></path></svg>","Warning":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M215.46,216H40.54C27.92,216,20,202.79,26.13,192.09L113.59,40.22c6.3-11,22.52-11,28.82,0l87.46,151.87C236,202.79,228.08,216,215.46,216Z\" opacity=\"0.2\"></path><path d=\"M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z\"></path></svg>","Prohibit":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"></path><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm88,104a87.56,87.56,0,0,1-20.41,56.28L71.72,60.4A88,88,0,0,1,216,128ZM40,128A87.56,87.56,0,0,1,60.41,71.72L184.28,195.6A88,88,0,0,1,40,128Z\"></path></svg>","LinkSimple":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M209.94,113.94l-96,96a48,48,0,0,1-67.88-67.88l96-96a48,48,0,0,1,67.88,67.88Z\" opacity=\"0.2\"></path><path d=\"M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z\"></path></svg>","HandPalm":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M208,116v36a80,80,0,0,1-160,0V76a20,20,0,0,1,40,0V44a20,20,0,0,1,40,0V60a20,20,0,0,1,40,0v56a20,20,0,0,1,40,0Z\" opacity=\"0.2\"></path><path d=\"M188,88a27.75,27.75,0,0,0-12,2.71V60a28,28,0,0,0-41.36-24.6A28,28,0,0,0,80,44v6.71A27.75,27.75,0,0,0,68,48,28,28,0,0,0,40,76v76a88,88,0,0,0,176,0V116A28,28,0,0,0,188,88Zm12,64a72,72,0,0,1-144,0V76a12,12,0,0,1,24,0v44a8,8,0,0,0,16,0V44a12,12,0,0,1,24,0v68a8,8,0,0,0,16,0V60a12,12,0,0,1,24,0v68.67A48.08,48.08,0,0,0,120,176a8,8,0,0,0,16,0,32,32,0,0,1,32-32,8,8,0,0,0,8-8V116a12,12,0,0,1,24,0Z\"></path></svg>","ShieldCheck":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,56v56c0,96-88,120-88,120S40,208,40,112V56a8,8,0,0,1,8-8H208A8,8,0,0,1,216,56Z\" opacity=\"0.2\"></path><path d=\"M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z\"></path></svg>","ShieldSlash":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,56v56c0,96-88,120-88,120S40,208,40,112V56a8,8,0,0,1,8-8H208A8,8,0,0,1,216,56Z\" opacity=\"0.2\"></path><path d=\"M53.92,34.62A8,8,0,0,0,40.26,42,16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.27,47,25.53a8,8,0,0,0,4.2,0c1.36-.37,31.27-8.78,57.09-34.72l14.89,16.38a8,8,0,1,0,11.84-10.76Zm74.07,189a128.48,128.48,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56h3.71L176.41,193.15A129.26,129.26,0,0,1,128,223.62ZM224,56v56c0,20.58-3.89,39.61-11.56,56.59A8,8,0,1,1,197.86,162c6.73-14.89,10.14-31.71,10.14-50V56L98.52,56a8,8,0,1,1,0-16H208A16,16,0,0,1,224,56Z\"></path></svg>","Info":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"></path><path d=\"M144,176a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176Zm88-48A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128ZM124,96a12,12,0,1,0-12-12A12,12,0,0,0,124,96Z\"></path></svg>","CheckFat":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M237.66,85.26l-128.4,128.4a8,8,0,0,1-11.32,0l-71.6-72a8,8,0,0,1,0-11.31l24-24a8,8,0,0,1,11.32,0L104,147.43l98.34-97.09a8,8,0,0,1,11.32,0l24,23.6A8,8,0,0,1,237.66,85.26Z\" opacity=\"0.2\"></path><path d=\"M243.28,68.24l-24-23.56a16,16,0,0,0-22.59,0L104,136.23l-36.69-35.6a16,16,0,0,0-22.58.05l-24,24a16,16,0,0,0,0,22.61l71.62,72a16,16,0,0,0,22.63,0L243.33,90.91A16,16,0,0,0,243.28,68.24ZM103.62,208,32,136l24-24a.6.6,0,0,1,.08.08l42.35,41.09a8,8,0,0,0,11.19,0L208.06,56,232,79.6Z\"></path></svg>","Plus":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,56V200a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V56A16,16,0,0,1,56,40H200A16,16,0,0,1,216,56Z\" opacity=\"0.2\"></path><path d=\"M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z\"></path></svg>","Laptop":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,72V176H40V72A16,16,0,0,1,56,56H200A16,16,0,0,1,216,72Z\" opacity=\"0.2\"></path><path d=\"M232,168h-8V72a24,24,0,0,0-24-24H56A24,24,0,0,0,32,72v96H24a8,8,0,0,0-8,8v16a24,24,0,0,0,24,24H216a24,24,0,0,0,24-24V176A8,8,0,0,0,232,168ZM48,72a8,8,0,0,1,8-8H200a8,8,0,0,1,8,8v96H48ZM224,192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8v-8H224ZM152,88a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16h32A8,8,0,0,1,152,88Z\"></path></svg>","GithubLogo":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M208,104v8a48,48,0,0,1-48,48H136a32,32,0,0,1,32,32v40H104V192a32,32,0,0,1,32-32H112a48,48,0,0,1-48-48v-8a49.28,49.28,0,0,1,8.51-27.3A51.92,51.92,0,0,1,76,32a52,52,0,0,1,43.83,24h32.34A52,52,0,0,1,196,32a51.92,51.92,0,0,1,3.49,44.7A49.28,49.28,0,0,1,208,104Z\" opacity=\"0.2\"></path><path d=\"M208.3,75.68A59.74,59.74,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58,58,0,0,0,208.3,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.76,41.76,0,0,1,200,104Z\"></path></svg>","NotePencil":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M200,88l-72,72H96V128l72-72Z\" opacity=\"0.2\"></path><path d=\"M229.66,58.34l-32-32a8,8,0,0,0-11.32,0l-96,96A8,8,0,0,0,88,128v32a8,8,0,0,0,8,8h32a8,8,0,0,0,5.66-2.34l96-96A8,8,0,0,0,229.66,58.34ZM124.69,152H104V131.31l64-64L188.69,88ZM200,76.69,179.31,56,192,43.31,212.69,64ZM224,128v80a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h80a8,8,0,0,1,0,16H48V208H208V128a8,8,0,0,1,16,0Z\"></path></svg>","ArrowsDownUp":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M176,48V208H80V48Z\" opacity=\"0.2\"></path><path d=\"M117.66,170.34a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L72,188.69V48a8,8,0,0,1,16,0V188.69l18.34-18.35A8,8,0,0,1,117.66,170.34Zm96-96-32-32a8,8,0,0,0-11.32,0l-32,32a8,8,0,0,0,11.32,11.32L168,67.31V208a8,8,0,0,0,16,0V67.31l18.34,18.35a8,8,0,0,0,11.32-11.32Z\"></path></svg>","Terminal":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,80V192H40V64H200A16,16,0,0,1,216,80Z\" opacity=\"0.2\"></path><path d=\"M117.31,134l-72,64a8,8,0,1,1-10.63-12L100,128,34.69,70A8,8,0,1,1,45.32,58l72,64a8,8,0,0,1,0,12ZM216,184H120a8,8,0,0,0,0,16h96a8,8,0,0,0,0-16Z\"></path></svg>","FolderSimpleDashed":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,88V200.89a7.11,7.11,0,0,1-7.11,7.11H40a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6l27.74,20.8a8,8,0,0,0,4.8,1.6H216A8,8,0,0,1,224,88Z\" opacity=\"0.2\"></path><path d=\"M24,80V64A16,16,0,0,1,40,48H93.33a16.12,16.12,0,0,1,9.6,3.2L132.8,73.6a8,8,0,1,1-9.6,12.8L93.33,64H40V80a8,8,0,0,1-16,0ZM88,200H40v-8a8,8,0,0,0-16,0v8.62A15.4,15.4,0,0,0,39.38,216H88a8,8,0,0,0,0-16Zm72,0H128a8,8,0,0,0,0,16h32a8,8,0,0,0,0-16Zm64-56a8,8,0,0,0-8,8v48H200a8,8,0,0,0,0,16h16.89A15.13,15.13,0,0,0,232,200.89V152A8,8,0,0,0,224,144Zm-8-72H168a8,8,0,0,0,0,16h48v24a8,8,0,0,0,16,0V88A16,16,0,0,0,216,72ZM32,160a8,8,0,0,0,8-8V120a8,8,0,0,0-16,0v32A8,8,0,0,0,32,160Z\"></path></svg>","Question":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z\" opacity=\"0.2\"></path><path d=\"M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z\"></path></svg>","Sun":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M184,128a56,56,0,1,1-56-56A56,56,0,0,1,184,128Z\" opacity=\"0.2\"></path><path d=\"M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z\"></path></svg>","Moon":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M227.89,147.89A96,96,0,1,1,108.11,28.11,96.09,96.09,0,0,0,227.89,147.89Z\" opacity=\"0.2\"></path><path d=\"M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z\"></path></svg>","CornersOut":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M208,48V208H48V48Z\" opacity=\"0.2\"></path><path d=\"M216,48V88a8,8,0,0,1-16,0V56H168a8,8,0,0,1,0-16h40A8,8,0,0,1,216,48ZM88,200H56V168a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H88a8,8,0,0,0,0-16Zm120-40a8,8,0,0,0-8,8v32H168a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V168A8,8,0,0,0,208,160ZM88,40H48a8,8,0,0,0-8,8V88a8,8,0,0,0,16,0V56H88a8,8,0,0,0,0-16Z\"></path></svg>","ArrowLineRight":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M184,128l-72,72V56Z\" opacity=\"0.2\"></path><path d=\"M117.66,50.34A8,8,0,0,0,104,56v64H32a8,8,0,0,0,0,16h72v64a8,8,0,0,0,13.66,5.66l72-72a8,8,0,0,0,0-11.32ZM120,180.69V75.31L172.69,128ZM224,40V216a8,8,0,0,1-16,0V40a8,8,0,0,1,16,0Z\"></path></svg>","Copy":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M216,40V168H168V88H88V40Z\" opacity=\"0.2\"></path><path d=\"M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z\"></path></svg>","Signpost":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M240,112l-33.62,37.35a8,8,0,0,1-5.94,2.65H40a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H200.44a8,8,0,0,1,5.94,2.65Z\" opacity=\"0.2\"></path><path d=\"M246,106.65,212.33,69.3A16,16,0,0,0,200.44,64H136V32a8,8,0,0,0-16,0V64H40A16,16,0,0,0,24,80v64a16,16,0,0,0,16,16h80v64a8,8,0,0,0,16,0V160h64.44a16,16,0,0,0,11.89-5.3L246,117.35A8,8,0,0,0,246,106.65ZM200.44,144H40V80H200.44l28.8,32Z\"></path></svg>","User":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M192,96a64,64,0,1,1-64-64A64,64,0,0,1,192,96Z\" opacity=\"0.2\"></path><path d=\"M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z\"></path></svg>","EyeSlash":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M128,56C48,56,16,128,16,128s32,72,112,72,112-72,112-72S208,56,128,56Zm0,112a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z\" opacity=\"0.2\"></path><path d=\"M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z\"></path></svg>","ArrowArcLeft":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"26\" height=\"26\" fill=\"currentColor\" viewBox=\"0 0 256 256\"><path d=\"M88,152H24V88Z\" opacity=\"0.2\"></path><path d=\"M201.54,110.46a104,104,0,0,0-145.4-1.63L29.66,82.34A8,8,0,0,0,16,88v64a8,8,0,0,0,8,8H88a8,8,0,0,0,5.66-13.66L67.47,120.16A88,88,0,0,1,216,184a8,8,0,0,0,16,0A103.33,103.33,0,0,0,201.54,110.46ZM32,144V107.31L68.69,144Z\"></path></svg>"};
+const ic = n => I[n] || '';
+const chip = (n, label, tone = '') => `<span class="chip ${tone}"><span class="ic">${ic(n)}</span>${label}</span>`;
+
+const legend = [
+  { t: 'Two bands: Local and Cloud', d: 'The top band is your computer, marked Local. The bottom band is GitHub, marked Cloud, with a faint purple tint and a dark GitHub tile so the two never look alike. Each row is a branch; time runs left to right.', demo: `<span class="tile" style="--c:var(--text)">${ic('Laptop')}</span><span class="tile" style="background:#11141C;color:#fff;border-color:transparent">${ic('GithubLogo')}</span><span class="badge gh">Cloud</span>` },
+  { t: 'A tile is a snapshot', d: 'Each commit is a tile. Its icon is picked from the commit message, so you can tell a fix from a new feature at a glance.', demo: `<span class="tile" style="--c:#2563EB">${ic('Sparkle')}</span><span class="tile" style="--c:#2563EB">${ic('Wrench')}</span><span class="tile" style="--c:#2563EB">${ic('GitMerge')}</span>` },
+  { t: 'The badge says where it lives', d: 'Green check: on your laptop and on GitHub. Amber cloud: only on your laptop, not uploaded. Purple: only on GitHub.', demo: `<span class="tile" style="--c:var(--text)">${ic('Sparkle')}<span class="st ok">${ic('CheckFat')}</span></span><span class="tile" style="--c:var(--text)">${ic('Sparkle')}<span class="st pending">${ic('CloudArrowUp')}</span></span><span class="tile" style="--c:var(--text)">${ic('GitPullRequest')}<span class="st gh">${ic('GitMerge')}</span></span>` },
+  { t: 'Dashed tile: nothing yet', d: 'An empty repository, or a branch that has no snapshots of its own yet.', demo: `<span class="tile ghost">${ic('Plus')}</span>` },
+  { t: 'You are here', d: 'The ring marks the snapshot your files come from right now. It glides to the new spot whenever you save or switch.', demo: `<span class="ring"><span class="tile" style="--c:var(--text)">${ic('Wrench')}</span></span>` },
+  { t: 'Branch names stay pinned', d: 'main is ink; every other branch gets its own colour. When older history scrolls off to the left, the branch names and band headers stay pinned to the left edge.', demo: `<span class="pill" style="--c:var(--text)">main</span><span class="pill" style="--c:#0D9488">feature/login</span>` },
+  { t: 'Row badges count the gap', d: 'At the end of a row: how many snapshots are not uploaded yet, or are on GitHub but not downloaded yet.', demo: `<span class="badge pending">${ic('CloudArrowUp')}1 not on GitHub</span><span class="badge gh">${ic('GitMerge')}1 not on your laptop</span>` },
+  { t: 'Tags and conflicts', d: 'A version name (git tag) sits as a small blue chip under its tile. During a merge conflict, a red marker appears under You are here until it is resolved.', demo: `<span class="badge" style="background:var(--info-soft);color:var(--info)">${ic('Tag')}v1.0</span><span class="badge" style="background:var(--danger);color:#fff">${ic('Warning')}Merge conflict in 1 file</span>` },
+  { t: 'Your messages stand out', d: 'Each of your prompts is a green YOU card in the agent panel. The bar above it counts them (3/5) with buttons to jump between your prompts and back to the latest message.', demo: `<span class="badge" style="background:rgba(46,160,67,.14);color:var(--ok);box-shadow:inset 3px 0 0 #2EA043;padding:6px 12px">${ic('User')}YOU</span><span class="badge" style="background:var(--raised);color:var(--muted)">Your prompts 3/5</span>` },
+  { t: 'Closed alerts come back', d: 'Closing an alert shows an Undo for a few seconds, and closed alerts collect under Hidden, where Show again restores any of them.', demo: `<span class="badge" style="background:var(--raised);color:var(--muted)">${ic('EyeSlash')}Hidden 1</span><span class="badge" style="background:var(--text);color:var(--bg)">Undo</span>` },
+  { t: 'Travellers carry uploads', d: 'When snapshots are uploaded, a green pill with the snapshot id travels down to GitHub. Downloads travel up in blue. Then the tile lands.', demo: `<span class="traveler anim">&darr; 3d1d6ab</span><span class="traveler up anim">&uarr; 73a9e65</span><span class="tile land" style="--c:var(--text)">${ic('Sparkle')}</span>` }
+];
+document.getElementById('legend').innerHTML = legend.map(l => `<div class="lcard"><div class="demo">${l.demo}</div><h3>${l.t}</h3><p>${l.d}</p></div>`).join('');
+
+const S = [
+  { f: '00-empty-folder', t: 'An empty folder, before git', cmd: null, prompt: 'Your agent just started in a new folder',
+    map: 'A card in the middle: <b>"This folder is not tracked by git yet"</b>, with a dashed folder icon.',
+    panels: 'Your work says the folder isn’t tracked and offers a copyable first prompt. The agent panel waits for your first prompt; the Guard is already on.',
+    motion: 'Only the green "Watching" dot breathes in the top bar.', icons: [['FolderSimpleDashed', 'Not tracked yet'], ['Info', 'Information', 'info']] },
+  { f: '01-git-init', t: 'git init: version control starts', cmd: 'git init -b main', prompt: 'Start a recipe app and keep it in git.',
+    map: 'The two bands appear. Your laptop has one <b>dashed tile, "Empty, no snapshots yet"</b>, already inside the "You are here" ring. GitHub is dashed: "Not on GitHub yet".',
+    panels: 'Your prompt appears as a green YOU card, followed by the command and its output. Activity: <b>"Git started tracking this folder."</b>, credited to your agent.',
+    motion: 'The dashed tile lands; the new activity row slides in from above.', icons: [['FolderSimplePlus', 'Started tracking', 'info'], ['Plus', 'Empty tile']] },
+  { f: '02-unsaved-changes', t: 'Edited files, nothing saved yet', cmd: null, prompt: 'The agent wrote index.html and app.js but hasn’t committed',
+    map: 'No change: nothing is saved, so there is no new tile.',
+    panels: 'Top bar turns amber: <b>"2 unsaved changes"</b>. The <b>Unsaved</b> tile shows 2; click it to list each file as "new". Next step: "Save a first snapshot", with the prompt to copy.',
+    motion: 'None. File edits are checked every 3 seconds and the counts update in place.', icons: [['NotePencil', 'Unsaved changes', 'warn']] },
+  { f: '03-first-commit', t: 'The first snapshot', cmd: 'git add . && git commit -m "Scaffold recipe app"', prompt: '',
+    map: 'The dashed tile becomes a real one with a <b>sprout icon (first snapshot)</b>. Its caption is the commit message and a 7-letter id.',
+    panels: 'Unsaved changes drops to 0. Activity: <b>"Saved a snapshot on main: Scaffold recipe app"</b>.',
+    motion: 'The tile drops in and settles; the ring glides onto it.', icons: [['Plant', 'First snapshot'], ['GitCommit', 'Saved a snapshot']] },
+  { f: '04-second-commit', t: 'Another snapshot', cmd: 'git commit -am "feat: add recipe list"', prompt: '',
+    map: 'A second tile with a <b>sparkle (new feature)</b>, joined to the first by a line in the branch colour.',
+    panels: 'Activity adds another "Saved a snapshot" row.',
+    motion: 'The new tile lands, the line draws to it, and the whole map pans so the newest work stays in view.', icons: [['Sparkle', 'New feature']] },
+  { f: '05-push-moving', t: 'Uploading to GitHub, mid-move', cmd: 'git remote add origin … && git push -u origin main', prompt: 'Put it on GitHub.',
+    map: 'Caught a third of a second in: the GitHub band has woken up and its line is drawn, while the tiles wait to land.',
+    panels: 'Activity shows "Connected this folder to a remote repository" sliding in.',
+    motion: '<b>A green pill with the snapshot id travels down</b> from your laptop to GitHub, then the GitHub copies land a moment later (0.8 s delay) so the eye follows the trip.', icons: [['LinkSimple', 'Remote connected'], ['CloudArrowUp', 'Upload', 'ok']] },
+  { f: '06-push-done', t: 'Uploaded: everything backed up', cmd: null, prompt: '',
+    map: 'Both laptop tiles get a <b>green check</b>: also on GitHub. The GitHub band now mirrors them.',
+    panels: 'Your work turns green: <b>"All work is saved and on GitHub."</b> Activity: "Uploaded main to GitHub (2 snapshots)".',
+    motion: 'Badges switch colour; nothing else moves.', icons: [['ShieldCheck', 'All safe', 'ok'], ['CheckFat', 'On both', 'ok']] },
+  { f: '07-new-branch', t: 'A new branch', cmd: 'git switch -c feature/login', prompt: 'Add a login page on its own branch.',
+    map: 'A new teal row, <b>feature/login</b>, starts from the last main tile with a dashed tile: "New branch, nothing new yet". The ring moves to it.',
+    panels: 'The top bar chip changes to the teal "feature/login". Activity: <b>"Made a new branch feature/login from main and moved you onto it."</b>',
+    motion: 'A dotted sprout line grows out of main into the new row.', icons: [['GitBranch', 'New branch'], ['ArrowsLeftRight', 'Switched branch']] },
+  { f: '08-commit-on-branch', t: 'Work on the branch, not uploaded', cmd: 'git add . && git commit -m "feat: add login form"', prompt: '',
+    map: 'A tile on the teal row with an <b>amber cloud badge</b> and a row badge <b>"1 not on GitHub"</b>.',
+    panels: 'The <b>Not on GitHub</b> tile shows 1 in amber, with "+1 branch" for the branch that was never pushed. Next step suggests pushing it.',
+    motion: 'Tile lands; the curved line from main bends into the teal row.', icons: [['CloudArrowUp', 'Not uploaded', 'warn']] },
+  { f: '09-push-branch', t: 'The branch goes to GitHub', cmd: 'git push -u origin feature/login', prompt: '',
+    map: 'feature/login appears in the GitHub band too; the amber badge turns into a green check.',
+    panels: 'Activity: <b>"Uploaded new branch feature/login to GitHub (1 snapshot)."</b>',
+    motion: 'Green traveller down, tile lands on GitHub.', icons: [['CloudArrowUp', 'Uploaded new branch', 'ok']] },
+  { f: '10-only-on-github', t: 'Merged on GitHub, not on your laptop yet', cmd: 'git fetch origin', prompt: 'The pull request was merged on github.com',
+    map: 'GitHub’s main gets a <b>pull-request tile "Add login (#1)" with a purple badge</b>, and a row badge <b>"1 not on your laptop"</b>. Your laptop doesn’t have it yet.',
+    panels: 'The <b>Only on GitHub</b> tile shows 1 in purple. Activity: "Downloaded 1 new snapshot on main from GitHub." (fetch only checks; your files haven’t changed).',
+    motion: 'The tile lands on the GitHub band only.', icons: [['GitPullRequest', 'Merged pull request', 'pr'], ['CloudArrowDown', 'Fetched', 'info']] },
+  { f: '11-pull-moving', t: 'Downloading, mid-move', cmd: 'git switch main && git pull --no-rebase origin main', prompt: '',
+    map: 'Caught mid-download: the GitHub snapshot is on its way up.',
+    panels: '',
+    motion: '<b>A blue pill travels up</b> from GitHub to your laptop, then the tile lands on the laptop band.', icons: [['CloudArrowDown', 'Download', 'info']] },
+  { f: '12-pull-done', t: 'Pulled: both sides match', cmd: null, prompt: '',
+    map: 'The pull-request tile is now on your laptop too, with a green check. The ring is back on main.',
+    panels: 'Only on GitHub drops to 0. Activity: <b>"Pulled the latest work from GitHub into main."</b>',
+    motion: 'The ring glides back to main.', icons: [['CloudArrowDown', 'Pulled', 'info']] },
+  { f: '13-commit-on-main', t: 'A quick fix straight on main', cmd: 'git commit -am "fix: title typo"', prompt: 'Fix the title quickly.',
+    map: 'A <b>wrench tile (fix)</b> on main with an amber "1 not on GitHub" badge.',
+    panels: 'Needs attention gets a one-line amber row, <b>"Committed straight to main"</b>: click it for why (fine for a tiny fix, but it skips review). The activity row is amber too.',
+    motion: 'Tile lands; the alert card appears at the top of the right panel.', icons: [['Wrench', 'Fix'], ['Warning', 'Heads-up', 'warn']] },
+  { f: '14-diverged-refused', t: 'GitHub says no: both sides changed', cmd: 'git push origin main', prompt: 'A teammate pushed to GitHub in the meantime',
+    map: 'Your main has a snapshot GitHub lacks (amber) and GitHub has one you lack (purple "Teammate tweak").',
+    panels: 'The agent panel shows the command’s output in red: <b>[rejected]</b>. Activity: <b>"GitHub refused the upload because it has work your laptop doesn’t. This is git protecting you."</b> Alert: "Your main and GitHub’s have split".',
+    motion: 'None on the map: nothing moved, because the upload was refused.', icons: [['Prohibit', 'Refused', 'warn'], ['Warning', 'Split', 'warn']] },
+  { f: '15-guard-paused', t: 'The guard pauses a force push', cmd: 'git push --force origin main', prompt: 'The agent tries to force its way through',
+    map: 'Unchanged: the command hasn’t run.',
+    panels: 'Agent panel: a red <b>raised hand, "Paused. Answer in your agent"</b> with the reason: "Loses 1 snapshot on GitHub’s main that your laptop doesn’t have" and a safer way. Your work and Needs attention both lead with <b>"Paused: force push to main on GitHub"</b>.',
+    motion: 'The red hand icon pulses gently until you answer.', icons: [['HandPalm', 'Paused', 'danger']] },
+  { f: '16-force-push', t: 'You said yes: work erased on GitHub', cmd: 'git push --force origin main', prompt: 'Ok, force it anyway.',
+    map: 'The teammate’s tile <b>disappears from GitHub</b>; both bands match your laptop again.',
+    panels: 'The first guard entry turns green, <b>"Stopped. Nothing changed"</b>; the second reads amber, <b>"You let it run"</b>. The red alert <b>"Force push erased work on GitHub"</b> opens at the top, naming the lost snapshot and the id to recover it.',
+    motion: 'The erased tile vanishes and the row closes up.', icons: [['ShieldCheck', 'Stopped', 'ok'], ['ShieldWarning', 'You let it run / force push', 'danger']] },
+  { f: '17-hard-reset', t: 'A hard reset throws a snapshot away', cmd: 'git reset --hard HEAD~1', prompt: '',
+    map: 'The "feat: search" tile that was just saved is gone; the ring moves back.',
+    panels: 'Red alert: <b>"Reset threw away 1 snapshot"</b>, with the exact command to get it back. The guard had checked first: "Loses 1 snapshot that is on no other branch".',
+    motion: 'The tile disappears and the ring slides back one step.', icons: [['ArrowCounterClockwise', 'Reset', 'danger']] },
+  { f: '18-secret-committed', t: 'A secrets file gets committed', cmd: 'git add .env && git commit -m "Add API key config"', prompt: '',
+    map: 'A <b>key tile</b> (secrets or config) with an amber badge: not uploaded, and it shouldn’t be.',
+    panels: 'Your work turns red: <b>"A secrets file is saved in a snapshot."</b> Next step tells the agent to remove it before uploading anything, ready to copy.',
+    motion: 'Tile lands; the red alert takes the top spot.', icons: [['Key', 'Secret saved', 'danger']] },
+  { f: '19-deleted-unmerged-branch', t: 'Deleting a branch with unsaved work', cmd: 'git branch -D experiment', prompt: '',
+    map: 'The experiment row and its tile disappear.',
+    panels: 'The guard entry: "You let it run · Force-delete the experiment branch. Loses 1 snapshot that was never merged or pushed." Red alert: <b>"Deleted experiment with unsaved work"</b>, with the recovery command.',
+    motion: 'The row folds away.', icons: [['Trash', 'Branch deleted', 'danger']] },
+  { f: '20-tag-and-revert', t: 'A tag and an undo', cmd: 'git tag v1.0 && git revert --no-edit HEAD', prompt: '',
+    map: 'A new <b>curved-arrow tile (undo)</b> appears, and the earlier snapshot gets a small blue <b>v1.0</b> chip for the tag.',
+    panels: 'Activity: "Tagged …" and "Undid …" rows.',
+    motion: 'Tile lands; the tag chip appears under its tile.', icons: [['ArrowUUpLeft', 'Undo (revert)'], ['Tag', 'Tag', 'info']] },
+  { f: '21-detached-head', t: 'Looking at an old snapshot (not on a branch)', cmd: 'git checkout HEAD~2', prompt: '',
+    map: 'The ring jumps back to an older tile.',
+    panels: 'Top bar turns amber: <b>"Not on a branch"</b>. Its tooltip explains new snapshots here belong to no branch and are easy to lose.',
+    motion: 'The ring glides to the older tile.', icons: [['ArrowsLeftRight', 'Switched']] },
+  { f: '22-merge-conflict', t: 'A merge conflict', cmd: 'git merge theme', prompt: 'Two branches changed the same line',
+    map: 'Both theme branches are visible (red theme, blue theme), and a red <b>"Merge conflict in 1 file"</b> marker sits under You are here.',
+    panels: 'The conflict alert opens at the top of Needs attention, with what to ask the agent: resolve and finish, or abort. The conflicted file is listed under the Unsaved tile, marked "conflict".',
+    motion: 'The conflict marker appears on the map; the alert row opens.', icons: [['Warning', 'Conflict', 'danger'], ['Palette', 'Look and feel']] },
+  { f: '23-dark-mode', t: 'The same moment in dark mode', cmd: null, prompt: 'Sun/moon button, top right',
+    map: 'Branch lines get a soft glow; tiles become dark panels; colours brighten so they stay readable.',
+    panels: 'Everything keeps its meaning and position; only the palette changes. The agent panel stays a dark terminal in both modes.',
+    motion: 'Colours cross-fade.', icons: [['Moon', 'Dark mode'], ['Sun', 'Light mode']] }
+];
+const numOf = s => String(S.indexOf(s)).padStart(2, '0');
+document.getElementById('toc').innerHTML = S.map(s => `<li><a href="#s${numOf(s)}"><i>${numOf(s)}</i>${s.t}</a></li>`).join('');
+document.getElementById('steplist').innerHTML = S.map(s => {
+  const n = numOf(s);
+  const rows = [['On the map', s.map], s.panels && ['Panels', s.panels], ['Motion', s.motion]].filter(Boolean);
+  return `<article class="step" id="s${n}">
+    <figure class="shot"><button type="button" data-src="shots/${s.f}.jpg" data-cap="${n} · ${s.t}" aria-label="Open screenshot ${n} full size"><img src="shots/${s.f}.jpg" alt="GitFlux after: ${s.t}" loading="lazy" width="1440" height="900"></button>
+      <figcaption>${s.prompt ? (s.prompt.endsWith('.') ? 'You: “' + s.prompt + '”' : s.prompt) : 'Real capture'}</figcaption></figure>
+    <div class="info">
+      <div class="shead"><span class="n">${n}</span><h3>${s.t}</h3></div>
+      ${s.cmd ? `<code class="cmd">${s.cmd}</code>` : ''}
+      <dl class="facts">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+      <div class="icons">${s.icons.map(([n2, l, t]) => chip(n2, l, t)).join('')}</div>
+    </div></article>`;
+}).join('');
+
+const T = [
+  { h: 'Snapshot tiles: picked from the commit message', cols: ['Icon', 'Means', 'When the message…'], rows: [
+    ['GitMerge', '', 'Merge', 'has two parents (a merge)'], ['GitPullRequest', '', 'Merged pull request', 'ends with (#12)'],
+    ['ArrowUUpLeft', '', 'Undo', 'starts with revert'], ['Plant', '', 'First snapshot', 'is the first, or says init, scaffold, setup'],
+    ['Wrench', '', 'Fix', 'says fix, bug, hotfix, typo'], ['BookOpen', '', 'Docs', 'says docs or readme'], ['Flask', '', 'Tests', 'says test or spec'],
+    ['Palette', '', 'Look and feel', 'starts with style, ui, css, design, theme'], ['Shuffle', '', 'Restructure', 'starts with refactor, clean up, rename, move'],
+    ['Package', '', 'Maintenance', 'starts with chore, build, ci, deps, bump, config'], ['PencilSimpleLine', '', 'Work in progress', 'starts with wip, draft, temp'],
+    ['Key', '', 'Secrets or config', 'mentions key, secret, token, password, .env'], ['Sparkle', '', 'New feature', 'starts with feat, add, create, implement, new, connect'],
+    ['GitCommit', '', 'Snapshot', 'anything else'] ] },
+  { h: 'Activity feed: one icon per kind of git action', cols: ['Icon', 'Action', 'In plain words'], rows: [
+    ['Eye', '', 'Watching', 'GitFlux started watching the project'], ['FolderSimplePlus', 'info', 'git init', 'Git started tracking the folder'],
+    ['GitCommit', '', 'commit', 'A snapshot was saved'], ['PencilSimpleLine', '', 'amend', 'The last snapshot was rewritten'],
+    ['GitMerge', '', 'merge', 'Two lines of work were combined'], ['ArrowsLeftRight', '', 'checkout / switch', 'You moved to another branch or snapshot'],
+    ['GitBranch', '', 'branch created', 'A new line of work started'], ['Trash', '', 'branch deleted', 'A branch was removed (red if it had unsaved work)'],
+    ['ArrowCounterClockwise', '', 'reset', 'A branch moved back (red if snapshots were dropped)'], ['Stack', '', 'rebase', 'Snapshots were replayed on a newer base'],
+    ['CloudArrowDown', 'info', 'pull / fetch', 'Work came down from GitHub'], ['CloudArrowUp', 'ok', 'push', 'Work went up to GitHub'],
+    ['ShieldWarning', 'danger', 'force push', 'GitHub’s copy was overwritten'], ['Tag', '', 'tag', 'A snapshot got a version name'],
+    ['GitFork', '', 'cherry-pick', 'One snapshot was copied onto another branch'], ['ArrowUUpLeft', '', 'revert', 'A snapshot was undone by a new one'],
+    ['GitPullRequest', 'pr', 'pull request opened', 'Needs the GitHub CLI'], ['MinusCircle', '', 'pull request closed', 'Needs the GitHub CLI'],
+    ['CheckCircle', 'ok', 'checks passed', 'Tests on GitHub passed'], ['XCircle', 'danger', 'checks failed', 'Tests on GitHub failed'],
+    ['Warning', 'warn', 'conflict / heads-up', 'Something needs a decision'], ['Key', 'danger', 'secret', 'A passwords-or-keys file was saved'],
+    ['Prohibit', 'warn', 'refused', 'GitHub said no, protecting work'], ['LinkSimple', '', 'other', 'Remote connected, or anything else'] ] },
+  { h: 'The guard, in the agent panel', cols: ['Icon', 'State', 'What happened'], rows: [
+    ['HandPalm', 'danger', 'Paused. Answer in your agent', 'Waiting for your yes or no; nothing changed yet'],
+    ['ShieldWarning', 'warn', 'You let it run', 'You approved it, so it ran'], ['ShieldCheck', 'ok', 'Stopped. Nothing changed', 'You said no, or the agent moved on'],
+    ['Prohibit', 'ok', 'Blocked by GitFlux', 'Guard set to Block; agent told a safer way'], ['CheckCircle', '', 'Checked: nothing would be lost', 'Risky kind of command, but harmless here'],
+    ['ShieldSlash', 'warn', 'Guard is off, so it ran', 'Guard set to Off'] ] },
+  { h: 'Everywhere else', cols: ['Icon', 'Where', 'Means'], rows: [
+    ['Laptop', '', 'Map', 'Your laptop band'], ['GithubLogo', '', 'Map, panel', 'GitHub band, GitHub card'], ['Plus', '', 'Map', 'Empty or new branch tile'],
+    ['CheckFat', 'ok', 'Tile badge', 'On laptop and GitHub'], ['CloudArrowUp', 'warn', 'Tile badge, rows', 'Not on GitHub yet'], ['GitMerge', 'pr', 'Tile badge, rows', 'Only on GitHub'],
+    ['NotePencil', 'warn', 'Your work', 'Unsaved changes'], ['ShieldCheck', 'ok', 'Your work', 'All work is safe'], ['Info', 'info', 'Your work, alerts', 'Information'],
+    ['Terminal', '', 'Agent panel', 'A command the agent ran'], ['ArrowsDownUp', '', 'Map', 'Down is upload, up is download'],
+    ['FolderSimpleDashed', '', 'Map', 'Folder not tracked yet'], ['Question', '', 'Top bar', 'Help, legend and tour'], ['Sun', '', 'Top bar', 'Switch theme'],
+    ['CornersOut', '', 'Map toolbar', 'Show the whole map'], ['ArrowLineRight', '', 'Map', 'Follow the latest snapshots'], ['Copy', '', 'Next step', 'Copy the prompt for your agent'],
+    ['Signpost', '', 'Help dialog', 'Take the tour'] ] }
+];
+document.getElementById('tables').innerHTML = T.map(t => `<div><h3>${t.h}</h3><div class="tablewrap"><table><thead><tr>${t.cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${
+  t.rows.map(([n, tone, a, b]) => `<tr><td class="${tone ? 'tone-' + tone : ''}"><span class="ic">${ic(n)}</span></td><td><b>${a}</b></td><td>${b}</td></tr>`).join('')}</tbody></table></div></div>`).join('');
+
+const M = [
+  ['New tile', 'A snapshot appears (commit, push, pull)', 'Drops 14 px from above and settles from 90% size', '0.6 s'],
+  ['Traveller pill', 'A snapshot crosses between laptop and GitHub', 'Green pill down for uploads, blue up for downloads; the tile lands 0.8 s later', '1.1 s'],
+  ['Branch lines', 'The map re-lays out', 'Each line morphs to its new path', '0.45 s'],
+  ['Tiles and rows', 'Layout changes', 'Slide to their new place', '0.45 s'],
+  ['You are here ring', 'You commit, switch or reset', 'Glides to the new snapshot', '0.55 s'],
+  ['Whole map', 'New work arrives off-screen', 'Pans so the newest snapshots stay in view (until you move the map yourself)', '0.45 s'],
+  ['Activity row', 'Any new event', 'Slides down 10 px into place', '0.5 s'],
+  ['Watching dot', 'Always, while connected', 'Breathes', '2 s loop'],
+  ['Sync line', 'Always', 'Dotted line between the bands drifts slowly', '2.4 s loop'],
+  ['Paused hand', 'The guard is waiting for you', 'Pulses', '1.6 s loop'],
+  ['Tooltips', 'Hover or focus anything', 'Fade and zoom in', '0.15 s'],
+  ['Tour spotlight', 'Moving between tour steps', 'The highlight and card glide to the next area', '0.35 s'],
+  ['Pinned labels', 'The map pans', 'Branch names and band headers glide with it and stay at the left edge', '0.45 s'],
+  ['Prompt highlight', 'You jump to one of your prompts', 'A green ring flashes around the YOU card', '1.2 s'],
+  ['Undo toast', 'You close an alert', 'Slides in; stays 7 s', '0.25 s']
+];
+document.querySelector('#motiontable tbody').innerHTML = M.map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td class="num">${r[3]}</td></tr>`).join('');
+
+const N = [
+  ['A false “someone rewrote main” alarm', 'GitFlux read the branch list and the history at the same moment. A download landing in between made a normal merge on GitHub look like a rewrite. It now reads the branches first, and never calls it a rewrite when it can’t see the new snapshot. A test now recreates that exact moment.'],
+  ['Branch names cut off on long histories', 'Once the map was wider than the screen, every branch name sat off the left edge. They now stay pinned to the edge (step 22 shows it).'],
+  ['Tags and conflicts missing from the map', 'They only appeared in the side panels. Tags are now chips on their tiles (step 20) and conflicts get a red marker (step 22).'],
+  ['Windows line-ending noise', 'Git’s “LF will be replaced by CRLF” warnings filled the agent log. They are filtered out: 0 of 26 commands in this capture show them.']
+];
+document.getElementById('notes').innerHTML = N.map(([h, p]) => `<div class="note"><span class="ic" style="background:var(--ok-soft);color:var(--ok)">${ic('CheckCircle')}</span><p><b>${h}.</b> ${p}</p></div>`).join('');
+
+const lb = document.getElementById('lb');
+document.getElementById('steplist').addEventListener('click', e => {
+  const b = e.target.closest('button[data-src]'); if (!b) return;
+  document.getElementById('lbimg').src = b.dataset.src;
+  document.getElementById('lbimg').alt = b.querySelector('img').alt;
+  document.getElementById('lbcap').textContent = b.dataset.cap;
+  lb.showModal();
+});
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+</script>

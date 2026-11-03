@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GitFlux</title>
+    <meta name="description" content="A live, plain-English map of what your AI coding agent does to git and GitHub." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      (function () {
+        var t = null;
+        try { t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('gitflux-theme'); } catch (e) {}
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-Di7fAVMj.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CW4sXBsS.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+name: Idea
+description: A git situation GitFlux should explain or catch, or something you'd like it to do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: situation
+    attributes:
+      label: What were you doing?
+      description: The moment where GitFlux could have helped, in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What should GitFlux show or do?
