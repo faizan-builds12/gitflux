@@ -152,7 +152,7 @@ export class Engine extends EventEmitter {
         this.state.snapshot = next;
         for (const e of events) this.addEvent(e);
         for (const a of alerts) this.addAlert(a);
-        await this.checkSecrets(events, next);
+        await this.checkSecrets(events);
         this.syncStateAlerts();
         if (events.some(e => /push|fetch|pull|remote/.test(e.kind))) this.github.refreshSoon();
         const origin = next.remotes.find(r => r.name === 'origin')?.url ?? '';
@@ -168,7 +168,7 @@ export class Engine extends EventEmitter {
     }
   }
 
-  private async checkSecrets(events: GitEvent[], snap: Snapshot) {
+  private async checkSecrets(events: GitEvent[]) {
     const shas = events.filter(e => ['commit', 'amend', 'merge', 'cherry-pick'].includes(e.kind)).flatMap(e => e.shas ?? []);
     for (const sha of shas) {
       const files = (await gitSafe(this.folder, ['show', '--name-only', '--format=', sha])).split(/\r?\n/).filter(isSecretPath);

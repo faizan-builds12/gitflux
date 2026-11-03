@@ -15,5 +15,8 @@
     "safety"
   ],
   "homepage": "https://github.com/faizan-builds12/gitflux",
-  "repository": "https://github.com/faizan-builds12/gitflux"
+  "repository": "https://github.com/faizan-builds12/gitflux",
+  "documentationUrl": "https://github.com/faizan-builds12/gitflux/blob/main/docs/README.md",
+  "privacyPolicyUrl": "https://github.com/faizan-builds12/gitflux/blob/main/docs/privacy-and-security.md",
+  "supportUrl": "https://github.com/faizan-builds12/gitflux/issues"
 }

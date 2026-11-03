@@ -10,10 +10,10 @@ npx remotion render GitFlux-Explainer out/gitflux-explainer.mp4    # render
 
 | File | What it is |
 |---|---|
-| `src/scene1/timing.ts` | Every beat's frame number, in one place |
-| `src/scene1/Scene1.tsx` | The story: the problem, GitFlux's map, the guard, the end card |
-| `src/scene1/GitFluxWindow.tsx` | The GitFlux page, redrawn for the video |
-| `src/scene1/SoundTrack.tsx` | Sound effects, each cued to a beat |
+| `src/explainer/timing.ts` | Every beat's frame number, in one place |
+| `src/explainer/Explainer.tsx` | The story: the problem, GitFlux's map, the guard, the end card |
+| `src/explainer/GitFluxWindow.tsx` | The GitFlux page, redrawn for the video |
+| `src/explainer/SoundTrack.tsx` | Sound effects, each cued to a beat |
 | `public/sfx/` | The sound effects, synthesized with [Earshot](https://github.com/Leonxlnx/earshot) |
 
 Two key-press sounds were fitted from public-domain (CC0) recordings on Freesound: [one by zrrion](https://freesound.org/people/zrrion/sounds/665075/) and [one by bigmonmulgrew](https://freesound.org/people/bigmonmulgrew/sounds/378084/). Thank you.

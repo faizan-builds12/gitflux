@@ -13,14 +13,22 @@ npm test           # real git operations in temporary repositories
 npm run demo       # plays a scripted agent session you can watch
 ```
 
-| Folder | What's in it |
-|---|---|
-| `packages/cli` | The watcher, classifier, guard and hook client (TypeScript) |
-| `packages/ui` | The page (React + Vite) |
-| `plugin/` | What gets installed: `bin/gitflux.mjs` and `ui/` are **built**, the manifests and hooks are hand-written |
-| `scripts/` | `build-plugin.mjs` and the demo |
-| `video/` | The explainer video (Remotion) |
-| `docs/` | Guides and the README's images and video |
+## Where things live
+
+```
+packages/cli/       the watcher, classifier, guard and hook client (TypeScript), with its tests
+packages/ui/        the page (React + Vite)
+plugin/             what gets installed; see plugin/README.md
+scripts/            build-plugin.mjs, logo.mjs and the demo
+docs/               guides, the visual guide, and the README's images and video
+video/              the explainer video (Remotion)
+
+.claude-plugin/     the Claude Code marketplace listing: points at plugin/
+.agents/plugins/    the Codex marketplace listing: points at plugin/
+.github/            tests on every push, issue and pull request templates
+```
+
+The two marketplace folders have to sit at the repository root, because that's where Claude Code and Codex look when someone adds `faizan-builds12/gitflux`. The plugin itself lives in `plugin/`, which has no dependencies, so installing it doesn't download the build tools.
 
 `plugin/bin` and `plugin/ui` are committed on purpose: plugin installs and `npx github:…` run straight from the repository with nothing to build. Run `npm run build` and commit them along with your source change.
 

@@ -1,12 +1,12 @@
 import { Composition } from "remotion";
-import { Scene1 } from "./scene1/Scene1";
+import { Explainer } from "./explainer/Explainer";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
         id="GitFlux-Explainer"
-        component={Scene1}
+        component={Explainer}
         durationInFrames={930}
         fps={30}
         width={1920}

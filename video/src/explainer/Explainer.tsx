@@ -29,7 +29,7 @@ const WY = 78;
 const AGENT_RECT = { x: WX + AGENT.x * S, y: WY + AGENT.y * S, w: AGENT.w * S, h: AGENT.h * S };
 const TERM_RECT = { x: 960, y: 176, w: 840, h: 728 };
 
-export const Scene1: React.FC = () => {
+export const Explainer: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
